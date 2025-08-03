@@ -292,6 +292,7 @@ font-name = Monospace 24
 keyboard = onboard -l Phone -e
 a11y-states = +keyboard;+font
 position = 50%,center 35%,center
+keyboard-position = 50%,center -0;100% 40%
 ```
 
 编辑 /etc/lightdm/lightdm.conf 启用显示用户名，找到 `[Seat:*]` 一节中的 `greeter-hide-users` 一行，修改为
