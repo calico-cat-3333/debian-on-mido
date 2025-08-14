@@ -477,6 +477,8 @@ udevadm trigger
 
 在 xfce power manager 中可以控制默认电源按钮行为，但这只在 xfce 里有效，在 lightdm 里无效。
 
+在 lightdm 界面下，电源按钮行为受到 systemd-logind 的控制，所以需要编辑 `/etc/systemd/logind.conf` 修改其中的 `HandlePowerKey=` 一项。
+
 ### 杂七杂八
 
 还有一些别的界面或者行为配置，比较杂碎有些想不起来了
