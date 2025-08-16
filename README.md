@@ -12,7 +12,7 @@
 主机安装所需软件包（可能不全）
 
 ```text-x-sh
-sudo apt install binfmt-support qemu-user-static fakeroot mkbootimg bison flex gcc-aarch64-linux-gnu pkg-config libncurses-dev libssl-dev unzip git debootstrap android-sdk-libsparse-utils adb fastboot
+sudo apt install binfmt-support qemu-user-static fakeroot mkbootimg bison flex gcc-aarch64-linux-gnu pkg-config libncurses-dev libssl-dev unzip git debootstrap android-sdk-libsparse-utils adb fastboot libssl-dev libdw-dev
 ```
 
 克隆此储存库
@@ -24,14 +24,14 @@ git clone https://github.com/calico-cat-3333/debian-on-mido.git
 克隆内核源码
 
 ```text-x-sh
-git clone https://github.com/msm8953-mainline/linux.git --depth=1 -b 6.11.1/main
+git clone https://github.com/msm8953-mainline/linux.git --depth=1 -b 6.15/main
 ```
 
-此处使用的 6.11.1/main 分支是本文撰写时最新的分支，如果需要请调整为其他分支。
+此处使用的 6.15/main 分支是本文撰写时最新的分支，如果需要请调整为其他分支。
 
-编译内核，我的配置文件修改自 [https://gitlab.com/postmarketOS/pmaports/-/blob/master/device/community/linux-postmarketos-qcom-msm8953/config-postmarketos-qcom-msm8953.aarch64](https://gitlab.com/postmarketOS/pmaports/-/blob/master/device/community/linux-postmarketos-qcom-msm8953/config-postmarketos-qcom-msm8953.aarch64) 参考 [https://gitee.com/meiziyang2023/ubuntu-ports-xiaomi-625-phones/blob/master/.config](https://gitee.com/meiziyang2023/ubuntu-ports-xiaomi-625-phones/blob/master/.config) 开启部分选项。不过说实话不是很清楚这些选项会影响什么。我修改后的文件放在 config 里，可以去对比一下。
+编译内核，我的配置文件修改自 [https://gitlab.com/postmarketOS/pmaports/-/blob/master/device/community/linux-postmarketos-qcom-msm8953/config-postmarketos-qcom-msm8953.aarch64](https://gitlab.com/postmarketOS/pmaports/-/blob/master/device/community/linux-postmarketos-qcom-msm8953/config-postmarketos-qcom-msm8953.aarch64) 主要就是改了一下本地名称，禁用了模块压缩（这个比较重要，开启之后开不了机），开启了 g_serial
 
-比较重要的是有一个跟禁用压缩有关的选项必须打开，不然开不了机。
+修改后的文件位于 config 中。
 
 ```text-x-sh
 cd linux
@@ -44,10 +44,12 @@ make menuconfig
 
 ```text-x-sh
 make -j10
-make deb-pkg
+make DEB_BUILD_PROFILES=pkg.linux-upstream.nokernelheaders bindeb-pkg
 ```
 
-然后在上级文件夹中可以找到生成的四个 deb 文件
+（这里由于 linux 内核更改，现在需要 libssl-dev:arm64 才能构建 kernel-headers 所以这里直接不构建 linux-headers 来规避这个问题，具体参考 [https://github.com/msm8953-mainline/linux/commit/e2c318225ac13083cdcb4780cdf5b90edaa8644d](https://github.com/msm8953-mainline/linux/commit/e2c318225ac13083cdcb4780cdf5b90edaa8644d)）
+
+然后在上级文件夹中可以找到生成的 deb 文件
 
 此储存库中已经提供了准备完成的固件文件夹，因此准备固件部分无需再进行。
 
@@ -61,9 +63,11 @@ git clone https://github.com/Kiciuk/proprietary_firmware_mido.git
 
 将 apnhlos 和 modem 两个文件夹中的文件全部拷贝到 firmware 文件夹中，重复则跳过即可
 
-下载 linux-firmware 并将 qcom 文件夹复制进去。
+下载 [linux-firmware: https://gitlab.com/kernel-firmware/linux-firmware](https://gitlab.com/kernel-firmware/linux-firmware) 并将 qcom 文件夹复制进去。
 
-将 firmware 文件夹中 a506 开头的文件复制到 qcom 文件夹中去。（可能不需要）
+创建 qcom/msm8953/xiaomi/mido/ 文件夹
+
+将 firmware 文件夹中 a506 开头的文件复制到 qcom/msm8953/xiaomi/mido/ 文件夹
 
 ## 制作系统
 
@@ -73,7 +77,7 @@ git clone https://github.com/Kiciuk/proprietary_firmware_mido.git
 
 ```text-x-sh
 sudo su
-dd if=/dev/zero of=rootfs.img bs=1G count=2
+dd if=/dev/zero of=rootfs.img bs=1G count=3
 mkfs.ext4 rootfs.img
 mkdir test
 mount rootfs.img test
@@ -83,7 +87,7 @@ mount rootfs.img test
 
 ```text-x-sh
 sudo su
-debootstrap --arch arm64 bookworm ./test https://mirrors.tuna.tsinghua.edu.cn/debian/
+debootstrap --arch arm64 trixie ./test https://mirrors.tuna.tsinghua.edu.cn/debian/
 ```
 
 chroot 进去
@@ -104,6 +108,7 @@ chroot ./test
 passwd root
 echo 'xiaomi-mido' > /etc/hostname
 echo '127.0.0.1 xiaomi-mido' >> /etc/hosts
+apt update
 apt install apt-transport-https ca-certificates micro locales locales-all man man-db bash-completion vim tmux network-manager openssh-server initramfs-tools systemd-timesyncd zstd python3 iptables rfkill usbutils sudo console-setup -y
 ```
 
@@ -121,7 +126,7 @@ sudo su
 cp linux*deb ./test/tmp/
 ```
 
-在 chroot 中安装内核包，使用 `dpkg -i` 命令，注意四个 deb 中有一个名字里有 dbg 的文件不需要安装。
+在 chroot 中安装内核包，使用 `dpkg -i` 命令，注意 deb 中有一个名字里有 dbg 的文件不需要安装。
 
 编辑 chroot 中 /etc/initramfs-tools/modules 加入以下内容
 
@@ -134,11 +139,14 @@ panel_xiaomi_ebbg_r63350
 panel_xiaomi_nt35532
 panel_xiaomi_otm1911
 panel_xiaomi_tianma_nt35596
+rmi_core
+rmi_i2c
+s6sy761
+simple-mfd-i2c
+sm5708-charger
 ```
 
 然后执行 `update-initramfs -u`
-
-这一步会报几个找不到文件的错，没影响（找不到的文件不是这个手机的固件）反而是如果没有报这几个错就要思考一下内核编译选项是不是没写对（我编译过几次，只要这里没有报错那么就开不了机，很奇怪）。
 
 ### boot.img
 
@@ -160,7 +168,7 @@ mkbootimg --base 0x80000000 \
         --pagesize 2048 \
         --second_offset 0x00f00000 \
         --ramdisk ./tmpboot/initrd.img \
-        --cmdline "console=tty0 root=UUID=cdca08a9-24f5-4cea-81f8-3848afe168c8 rw loglevel=3 splash"\
+        --cmdline "console=tty0 root=UUID=6c7dab6e-ca35-47a3-9df4-dc47ad3247a5 rw loglevel=3 splash"\
         --kernel ./tmpboot/kernel-dtb -o ./tmpboot/boot.img
 ```
 
@@ -260,10 +268,10 @@ fastboot erase userdata
 刷入 lk2nd
 
 ```text-x-sh
-fastboot flash boot lk2nd.img
+fastboot flash boot lk2nd-msm8953.img
 ```
 
-然后执行 `fastboot reboot` 重启，此时注意在手机振动一下但是屏幕还没有显示 mi 图标的时候按住音量减键，将进入 lk2nd 的 fastboot 界面，在此界面下，执行
+然后执行 `fastboot reboot` 重启，此时注意在手机振动一下但是屏幕还没有显示 mi 图标的时候按住音量减键，将进入 lk2nd 的 fastboot 界面（如果是从全新的 lk2nd 开始，也可以不按，因为没有可用的启动，所以会自动进入 lk2nd 的 fastboot），在此界面下，执行
 
 ```text-x-sh
 fastboot flash boot boot.img
@@ -527,7 +535,7 @@ xfce 下没有自动旋屏。
 
 挂起后无法充电（确切的说，从挂起恢复后 upower 服务会出现异常，导致 xfce power manager 卡死，此时电池状态不更新，也不知道是不是在充电，关机/重启时会卡在结束 upower 进程上，并可能导致上述不显示电池的问题）（仅在连接充电器后再挂起才会出现这种情况，不充电时挂起不会，恢复也不影响充电）
 
-不支持关机充电。
+不支持关机充电（插电自动开机）。
 
 充电不是很快。
 
