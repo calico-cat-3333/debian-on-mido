@@ -216,7 +216,7 @@ make_boot_img
 
 这里使用 `blkid` 获取 UUID 也可以通过 `file rootfs.img` 获取
 
-~~各偏移量参考 [https://gitlab.com/postmarketOS/pmaports/-/blob/master/device/community/device-xiaomi-mido/deviceinfo](https://gitlab.com/postmarketOS/pmaports/-/blob/master/device/community/device-xiaomi-mido/deviceinfo) ~~
+~~各偏移量参考 [https://gitlab.com/postmarketOS/pmaports/-/blob/master/device/community/device-xiaomi-mido/deviceinfo](https://gitlab.com/postmarketOS/pmaports/-/blob/master/device/community/device-xiaomi-mido/deviceinfo)~~
 
 ### 优化系统
 
