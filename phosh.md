@@ -43,7 +43,7 @@ gsettings set org.gnome.Epiphany.web:/ hardware-acceleration-policy 'never'
 安装中文输入法：
 
 ```
-sudo apt install fcitx5 fctix5-chinese-addon
+sudo apt install fcitx5 fctix5-chinese-addons
 ```
 
 重启设备。

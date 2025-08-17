@@ -332,8 +332,6 @@ fastboot flash userdata rootfs-simg.img
 
 默认开启了 g_serial 可以通过 USB 串口操作，波特率 115200
 
-修改 /etc/ssh/sshd\_config 开启 ssh
-
 ### 声音 蓝牙 重力感应
 
 声音需要在安装 alsa 之后安装配置文件：
