@@ -9,6 +9,8 @@
 
 ## 编译内核
 
+### 准备
+
 主机安装所需软件包（可能不全）
 
 ```text-x-sh
@@ -33,6 +35,8 @@ git clone https://github.com/msm8953-mainline/linux.git --depth=1 -b 6.15/main
 
 修改后的文件位于 config 中。
 
+### 执行编译
+
 ```text-x-sh
 cd linux
 source ../env.sh
@@ -47,19 +51,19 @@ make -j10
 make DEB_BUILD_PROFILES=pkg.linux-upstream.nokernelheaders bindeb-pkg
 ```
 
-（这里由于 linux 内核更改，现在需要 libssl-dev:arm64 才能构建 kernel-headers 所以这里直接不构建 linux-headers 来规避这个问题，具体参考 [https://github.com/msm8953-mainline/linux/commit/e2c318225ac13083cdcb4780cdf5b90edaa8644d](https://github.com/msm8953-mainline/linux/commit/e2c318225ac13083cdcb4780cdf5b90edaa8644d)）
+（这里由于 linux 6.12 内核更改，现在需要 libssl-dev:arm64 才能构建 kernel-headers 所以这里直接不构建 linux-headers 来规避这个问题，具体参考 [https://github.com/msm8953-mainline/linux/commit/e2c318225ac13083cdcb4780cdf5b90edaa8644d](https://github.com/msm8953-mainline/linux/commit/e2c318225ac13083cdcb4780cdf5b90edaa8644d)）
 
 然后在上级文件夹中可以找到生成的 deb 文件
 
-此储存库中已经提供了准备完成的固件文件夹，因此准备固件部分无需再进行。
+### 准备固件
+
+此储存库中已经提供了准备完成的固件文件夹，因此下面的步骤无需进行，这里仅记录以供参考。
 
 克隆固件文件
 
 ```text-x-sh
 git clone https://github.com/Kiciuk/proprietary_firmware_mido.git
 ```
-
-参考现有镜像准备固件：
 
 将 apnhlos 和 modem 两个文件夹中的文件全部拷贝到 firmware 文件夹中，重复则跳过即可
 
@@ -71,9 +75,9 @@ git clone https://github.com/Kiciuk/proprietary_firmware_mido.git
 
 ## 制作系统
 
-### 根文件系统
+### 制作根文件系统
 
-创建 rootfs.img 并挂载
+创建 rootfs.img 并挂载，然后使用 debootstrap 创建基本系统。
 
 ```text-x-sh
 sudo su
@@ -81,16 +85,17 @@ dd if=/dev/zero of=rootfs.img bs=1G count=3
 mkfs.ext4 rootfs.img
 mkdir test
 mount rootfs.img test
-```
 
-使用 debootstrap 创建 rootfs
-
-```text-x-sh
-sudo su
 debootstrap --arch arm64 trixie ./test https://mirrors.tuna.tsinghua.edu.cn/debian/
+
+# 或者使用 env.sh 中的函数
+
+sudo su
+source env.sh
+make_rootfs_img
 ```
 
-chroot 进去
+挂载 rootfs
 
 ```text-x-sh
 sudo su
@@ -99,6 +104,16 @@ mount --bind /dev ./test/dev
 mount --bind /dev/pts ./test/dev/pts
 mount --bind /sys ./test/sys
 
+# 或者使用 env.sh 中的函数
+
+sudo su
+source env.sh
+mount_rootfs
+```
+
+chroot 进去
+
+```
 chroot ./test
 ```
 
@@ -139,18 +154,35 @@ panel_xiaomi_ebbg_r63350
 panel_xiaomi_nt35532
 panel_xiaomi_otm1911
 panel_xiaomi_tianma_nt35596
-rmi_core
-rmi_i2c
-s6sy761
-simple-mfd-i2c
-sm5708-charger
+```
+
+在 chroot 中创建 /etc/initramfs-tools/hooks/mido-fw 并授予可执行权限，内容为
+
+```
+#!/bin/sh
+PREREQ=""
+prereqs()
+{
+	echo "$PREREQ"
+}
+case $1 in
+prereqs)
+	prereqs
+	exit 0
+	;;
+esac
+. /usr/share/initramfs-tools/hook-functions
+# Begin real processing below this line
+add_firmware qcom/msm8953/xiaomi/mido/a506_zap.mdt
+add_firmware qcom/msm8953/xiaomi/mido/a506_zap.elf
+add_firmware qcom/msm8953/xiaomi/mido/a506_zap.b00
+add_firmware qcom/msm8953/xiaomi/mido/a506_zap.b01
+add_firmware qcom/msm8953/xiaomi/mido/a506_zap.b02
 ```
 
 然后执行 `update-initramfs -u`
 
-### boot.img
-
-制作 boot.img
+### 制作 boot.img
 
 在主机中
 
@@ -161,6 +193,8 @@ cp ./linux/arch/arm64/boot/Image.gz tmpboot/
 cp ./test/boot/initrd.img* tmpboot/initrd.img
 cat tmpboot/Image.gz tmpboot/dtb > tmpboot/kernel-dtb
 
+rootfs_uuid=`/sbin/blkid -p -o value -s UUID rootfs.img`
+
 mkbootimg --base 0x80000000 \
         --kernel_offset 0x00008000 \
         --ramdisk_offset 0x01000000 \
@@ -168,13 +202,21 @@ mkbootimg --base 0x80000000 \
         --pagesize 2048 \
         --second_offset 0x00f00000 \
         --ramdisk ./tmpboot/initrd.img \
-        --cmdline "console=tty0 root=UUID=6c7dab6e-ca35-47a3-9df4-dc47ad3247a5 rw loglevel=3 splash"\
+        --cmdline "console=tty0 root=UUID=$rootfs_uuid rw loglevel=3 splash"\
         --kernel ./tmpboot/kernel-dtb -o ./tmpboot/boot.img
+
+cp ./tmpboot/boot.img ./boot.img
+
+# 或者使用 env.sh 中的函数
+
+sudo su
+source env.sh
+make_boot_img
 ```
 
-其中 UUID 需要通过 `file rootfs.img` 获取
+这里使用 `blkid` 获取 UUID 也可以通过 `file rootfs.img` 获取
 
-各偏移量参考 [https://gitlab.com/postmarketOS/pmaports/-/blob/master/device/community/device-xiaomi-mido/deviceinfo](https://gitlab.com/postmarketOS/pmaports/-/blob/master/device/community/device-xiaomi-mido/deviceinfo) 
+~~各偏移量参考 [https://gitlab.com/postmarketOS/pmaports/-/blob/master/device/community/device-xiaomi-mido/deviceinfo](https://gitlab.com/postmarketOS/pmaports/-/blob/master/device/community/device-xiaomi-mido/deviceinfo) ~~
 
 ### 优化系统
 
@@ -240,6 +282,12 @@ umount ./test/dev/pts
 umount ./test/dev
 umount ./test/sys
 umount ./test
+
+# 或者使用 env.sh 中的函数
+
+sudo su
+source env.sh
+umount_rootfs
 ```
 
 转换刷机包格式
@@ -309,15 +357,7 @@ keyboard-position = 50%,center -0;100% 40%
 greeter-hide-users=false
 ```
 
-### GPU 声音 蓝牙 重力感应
-
-需要高版本 mesa 才能使用 GPU 因此在安装桌面后如需使用 GPU 需要从 backports 源安装 mesa 相关的软件包
-
-安装 xfce4 桌面的时候会默认把 mesa 相关的包装上，所以我们只需要升级其中之一就可以让其他包跟着一起升级。
-
-```text-x-sh
-apt install libegl-mesa0 -t bookworm-backports
-```
+### 声音 蓝牙 重力感应
 
 声音需要在安装 alsa 和 pulseaudio 之后安装配置文件：
 
@@ -369,16 +409,16 @@ usermod -aG bluetooth user
 安装附属程序
 
 ```text-plain
-sudo apt install xfce4-terminal mousepad firefox-esr xfce4-power-manager ristretto network-manager-gnome fcitx5 fcitx5-chinese-addons
+sudo apt install xfce4-terminal mousepad firefox-esr xfce4-power-manager ristretto network-manager-gnome fcitx5 fcitx5-chinese-addons pkexec
 ```
 
-修复 Firefox 花屏问题
+修复 Firefox 卡死/花屏问题
 
-使用 firefox --same-mode 启动火狐，进入设置禁用硬件加速，进入 about:config 设置 webgl.disabled 为 true
+使用 firefox --same-mode 启动火狐，进入设置禁用硬件加速或进入 about:config 设置 webgl.disabled 为 true（目前看二选一就行，有待进一步测试）
 
 开启 Firefox 触屏支持
 
-在 about:config 中找到 dom.w3c_touch_events.enabled 项改为1（启用），默认为2（自动）。
+~~在 about:config 中找到 dom.w3c_touch_events.enabled 项改为1（启用），默认为2（自动）。~~（现版本似乎已经不需要了）
 
 修改文件 /etc/security/pam_env.conf，在文件最后添加
 
@@ -531,9 +571,11 @@ xfce 下没有自动旋屏。
 
 亮度传感器和重力传感器可用，但是还没想好怎么实现自动旋屏和自动亮度调整。
 
-有时会不显示电池。遇到这种情况时必须完全关机再开机，重启貌似无效果。充放电有时也不稳定。
+电池和充电状态是分开的（插上电源不会提示正在充电，但是实际上是在充电的，需要打开 powermanager 才会显示交流电源已连接）
 
-挂起后无法充电（确切的说，从挂起恢复后 upower 服务会出现异常，导致 xfce power manager 卡死，此时电池状态不更新，也不知道是不是在充电，关机/重启时会卡在结束 upower 进程上，并可能导致上述不显示电池的问题）（仅在连接充电器后再挂起才会出现这种情况，不充电时挂起不会，恢复也不影响充电）
+~~有时会不显示电池。遇到这种情况时必须完全关机再开机，重启貌似无效果。充放电有时也不稳定。~~
+
+~~挂起后无法充电（确切的说，从挂起恢复后 upower 服务会出现异常，导致 xfce power manager 卡死，此时电池状态不更新，也不知道是不是在充电，关机/重启时会卡在结束 upower 进程上，并可能导致上述不显示电池的问题）（仅在连接充电器后再挂起才会出现这种情况，不充电时挂起不会，恢复也不影响充电）~~
 
 不支持关机充电（插电自动开机）。
 
@@ -543,6 +585,9 @@ xfce 下没有自动旋屏。
 
 GPS 未测试。
 
+偶发图形错误。
+
+偶发触屏故障。
 
 ## 参考/鸣谢
 
