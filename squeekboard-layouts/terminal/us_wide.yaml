@@ -1,0 +1,145 @@
+---
+outlines:
+    default:   { width: 64,   height: 70 }
+    altline:   { width: 64,   height: 70 }
+    spaceline: { width: 128,  height: 70 }
+
+views:
+    base:
+        - "Esc 1 2 3 4 5 6 7 8 9 0 - = ` delet backspace"
+        - "Tab q w e r t y u i o p [ ] \\ Menu function"
+        - "shift a s d f g h j k l ; ' / up Return"
+        - "Ctrl z x c v space b n m , . left down right preference"
+    upper:
+        - "Esc ! @ # $ % ^ & * ( ) _ + ~ delet backspace"
+        - "Tab Q W E R T Y U I O P { } | Insert function"
+        - "shift A S D F G H J K L : \" ? up Return"
+        - "Ctrl Z X C V space B N M < > left down right preference"
+    functions:
+        - "Esc F1 F2 F3 F4 F5 F6 F7 F8 F9 F10 F11 F12 Alt delet backspace"
+        - "Tab q w e r t y u i o p [ ] Pause Insert function"
+        - "shift a s d f g h j k l ; ' Break PgUp Return"
+        - "Ctrl z x c v space b n m , . Home PgDn End preference"
+
+buttons:
+    shift:
+        action:
+            locking:
+                lock_view: "upper"
+                unlock_view: "base"
+        outline: "default"
+        icon: "key-shift"
+    function:
+        action:
+            locking:
+                lock_view: "functions"
+                unlock_view: "base"
+        outline: "default"
+        label: "Fn"
+    Esc:
+        outline: "default"
+        keysym: "Escape"
+    delet:
+        outline: "default"
+        label: "Del"
+        keysym: "Delete"
+    backspace:
+        outline: "default"
+        icon: "edit-clear-symbolic"
+        action: "erase"
+    Tab:
+        outline: "default"
+        keysym: "Tab"
+    Insert:
+        outline: "default"
+        keysym: "Insert"
+    up:
+        outline: "default"
+        label: "↑"
+        keysym: "Up"
+    down:
+        outline: "default"
+        label: "↓"
+        keysym: "Down"
+    left:
+        outline: "default"
+        label: "←"
+        keysym: "Left"
+    right:
+        outline: "default"
+        label: "→"
+        keysym: "Right"
+    space:
+        outline: "spaceline"
+        text: " "
+    Return:
+        outline: "spaceline"
+        icon: "key-enter"
+        keysym: "Return"
+    F1:
+        outline: "default"
+        keysym: "F1"
+    F2:
+        outline: "default"
+        keysym: "F2"
+    F3:
+        outline: "default"
+        keysym: "F3"
+    F4:
+        outline: "default"
+        keysym: "F4"
+    F5:
+        outline: "default"
+        keysym: "F5"
+    F6:
+        outline: "default"
+        keysym: "F6"
+    F7:
+        outline: "default"
+        keysym: "F7"
+    F8:
+        outline: "default"
+        keysym: "F8"
+    F9:
+        outline: "default"
+        keysym: "F9"
+    F10:
+        outline: "default"
+        keysym: "F10"
+    F11:
+        outline: "default"
+        keysym: "F11"
+    F12:
+        outline: "default"
+        keysym: "F12"
+    Pause:
+        outline: "default"
+        keysym: "default"
+    Break:
+        outline: "action"
+        keysym: "Break"
+    Home:
+        outline: "default"
+        keysym: "Home"
+    End:
+        outline: "default"
+        keysym: "End"
+    PgUp:
+        outline: "default"
+        keysym: "Page_Up"
+    PgDn:
+        outline: "default"
+        keysym: "Page_Down"
+    Ctrl:
+        modifier: "Control"
+        outline: "default"
+    Alt:
+        modifier: "Alt"
+        outline: "default"
+    preference:
+        action: "show_prefs"
+        outline: "altline"
+        icon: "keyboard-mode-symbolic"
+    Menu:
+        outline: "default"
+        keysym: "Menu"

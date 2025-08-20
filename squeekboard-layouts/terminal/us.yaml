@@ -1,0 +1,277 @@
+# Language: Englisch (US)
+---
+outlines:
+    default:       { width: 40.41,   height: 52     }
+    action:        { width: 67.35,   height: 52     }
+    change-view:   { width: 60.615,  height: 52     }
+    change-view-2: { width: 67.35,   height: 52     }
+    halfwidth:     { width: 20.205,  height: 52     }
+    large:         { width: 60.615,  height: 52     }
+    narrow:        { width: 30.307,  height: 52     }
+    small-row:     { width: 50.512,  height: 27.725 }
+    spaceline:     { width: 148.17,  height: 52     }
+    special:       { width: 60.615,  height: 52     }
+    special-2:     { width: 60.615,  height: 52     }
+    special-3:     { width: 67.35,   height: 52     }
+    numberline:    { width: 40.41,   height: 42     }
+
+views:
+    base:
+        - "Tab-small Ctrl Alt Shift ↑ ↓ ← →"
+        - "1 2 3 4 5 6 7 8 9 0"
+        - "q w e r t y u i o p"
+        - ".-thin a s d f g h j k l --thin"
+        - "show_upper z x c v b n m BackSpace"
+        - "show_numbers preferences space show_actions Return"
+    upper:
+        - "Tab-small Ctrl Alt Shift PageUp PageDown Home End"
+        - "!-nl @-nl #-nl $-nl =-nl _-nl +-nl *-nl (-nl )-nl"
+        - "Q W E R T Y U I O P"
+        - "/-thin A S D F G H J K L |-thin"
+        - "show_upper Z X C V B N M BackSpace"
+        - "show_numbers preferences space show_actions Return"
+    numbers:
+        - "Tab-small Ctrl Alt Shift ↑ ↓ ← →"
+        - "1 2 3 4 5 6 7 8 9 0"
+        - "~ ` ( ) { } < > [ ]"
+        - "\\ | & % = / - + * ^ _-hw"
+        - "delete-big , \" ' : ; ! ? BackSpace"
+        - "show_letters preferences space . Return"
+    actions:
+        - "Tab-small Ctrl Alt Shift PageUp PageDown Home End"
+        - "F1  F2  F3  F4  F5  F6"
+        - "F7  F8  F9  F10 F11 F12"
+        - "Esc Tab Pause Insert Up Del"
+        - "show_letters_actions Menu Break Left Down Right"
+
+buttons:
+    show_upper:
+        action:
+            locking:
+                lock_view: "upper"
+                unlock_view: "base"
+        outline: "change-view"
+        icon: "key-shift"
+    BackSpace:
+        outline: "special-2"
+        icon: "edit-clear-symbolic"
+        action: "erase"
+    preferences:
+        action: "show_prefs"
+        outline: "special"
+        icon: "keyboard-mode-symbolic"
+    show_numbers:
+        action:
+            set_view: "numbers"
+        outline: "change-view-2"
+        label: "1/&"
+    show_letters:
+        action:
+            set_view: "base"
+        outline: "change-view-2"
+        label: "ABC"
+    show_letters_actions:
+        action:
+            set_view: "base"
+        outline: "change-view-2"
+        label: "ABC"
+    delete-big:
+        outline: "change-view"
+        keysym: "Delete"
+        label: "Del"
+    show_actions:
+        action:
+            set_view: "actions"
+        outline: "change-view"
+        label: ">_"
+    .:
+        outline: "large"
+    space:
+        outline: "spaceline"
+        text: " "
+    Return:
+        outline: "special-3"
+        icon: "key-enter"
+        keysym: "Return"
+    F1:
+        outline: "action"
+        keysym: "F1"
+    F2:
+        outline: "action"
+        keysym: "F2"
+    F3:
+        outline: "action"
+        keysym: "F3"
+    F4:
+        outline: "action"
+        keysym: "F4"
+    F5:
+        outline: "action"
+        keysym: "F5"
+    F6:
+        outline: "action"
+        keysym: "F6"
+    F7:
+        outline: "action"
+        keysym: "F7"
+    F8:
+        outline: "action"
+        keysym: "F8"
+    F9:
+        outline: "action"
+        keysym: "F9"
+    F10:
+        outline: "action"
+        keysym: "F10"
+    F11:
+        outline: "action"
+        keysym: "F11"
+    F12:
+        outline: "action"
+        keysym: "F12"
+    Esc:
+        outline: "action"
+        keysym: "Escape"
+    Tab:
+        outline: "action"
+        keysym: "Tab"
+    Tab-small:
+        outline: "small-row"
+        keysym: "Tab"
+        label: "Tab"
+    Del:
+        outline: "action"
+        keysym: "Delete"
+    Insert:
+        outline: "action"
+        keysym: "Insert"
+    Menu:
+        outline: "action"
+        keysym: "Menu"
+    Pause:
+        outline: "action"
+        keysym: "Pause"
+    Break:
+        outline: "action"
+        keysym: "Break"
+    Home:
+        outline: "small-row"
+        keysym: "Home"
+    End:
+        outline: "small-row"
+        keysym: "End"
+    PageUp:
+        outline: "small-row"
+        keysym: "Page_Up"
+        label: "Page ↑"
+    PageDown:
+        outline: "small-row"
+        keysym: "Page_Down"
+        label: "Page ↓"
+    "↑":
+        outline: "small-row"
+        keysym: "Up"
+    "↓":
+        outline: "small-row"
+        keysym: "Down"
+    "←":
+        outline: "small-row"
+        keysym: "Left"
+    "→":
+        outline: "small-row"
+        keysym: "Right"
+    Up:
+        label: "↑"
+        outline: "action"
+        keysym: "Up"
+    Left:
+        label: "←"
+        outline: "action"
+        keysym: "Left"
+    Down:
+        label: "↓"
+        outline: "action"
+        keysym: "Down"
+    Right:
+        label: "→"
+        outline: "action"
+        keysym: "Right"
+    Ctrl:
+        modifier: "Control"
+        outline: "small-row"
+        label: "Ctrl"
+    Alt:
+        modifier: "Alt"
+        outline: "small-row"
+        label: "Alt"
+    Shift:
+        modifier: "Shift"
+        outline: "small-row"
+        label: "Shift"
+    --thin:
+        outline: "halfwidth"
+        text: "-"
+    /-thin:
+        outline: "halfwidth"
+        text: "/"
+    "|-thin":
+        outline: "halfwidth"
+        text: "|"
+    .-thin:
+        outline: "halfwidth"
+        text: "."
+    "\\":
+        outline: "halfwidth"
+    _-hw:
+        outline: "halfwidth"
+        text: "_"
+    1:
+        outline: "numberline"
+    2:
+        outline: "numberline"
+    3:
+        outline: "numberline"
+    4:
+        outline: "numberline"
+    5:
+        outline: "numberline"
+    6:
+        outline: "numberline"
+    7:
+        outline: "numberline"
+    8:
+        outline: "numberline"
+    9:
+        outline: "numberline"
+    0:
+        outline: "numberline"
+    "!-nl":
+        outline: "numberline"
+        text: "!"
+    "@-nl":
+        outline: "numberline"
+        text: "@"
+    "#-nl":
+        outline: "numberline"
+        text: "#"
+    "$-nl":
+        outline: "numberline"
+        text: "$"
+    "=-nl":
+        outline: "numberline"
+        text: "="
+    "_-nl":
+        outline: "numberline"
+        text: "_"
+    "+-nl":
+        outline: "numberline"
+        text: "+"
+    "*-nl":
+        outline: "numberline"
+        text: "*"
+    "(-nl":
+        outline: "numberline"
+        text: "("
+    ")-nl":
+        outline: "numberline"
+        text: ")"

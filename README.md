@@ -5,7 +5,9 @@
 
 这台机器有多种供应商，部分供应商的硬件并没有被完全驱动，因此这里不保证完全可用。硬件供应商驱动情况请参考 [https://wiki.postmarketos.org/wiki/Xiaomi_Redmi_Note_4_(xiaomi-mido)](https://wiki.postmarketos.org/wiki/Xiaomi_Redmi_Note_4_(xiaomi-mido)) 
 
-如果你希望使用我已经编译好的系统，可以在 [Releases](https://github.com/calico-cat-3333/debian-on-mido/releases) 里下载文件并直接跳到[刷入](https://github.com/calico-cat-3333/debian-on-mido/tree/main#%E5%88%B7%E5%85%A5)一节。
+根据 PostmarketOS Wiki 中的描述，搭载 Goodix 触摸屏的设备可能会遇到无法使用触摸的问题，要解决此问题需要修改 [lk2nd 设备树](https://github.com/msm8916-mainline/lk2nd/blob/main/lk2nd/device/dts/msm8953/msm8953-xiaomi-common.dts#L73-L92)，将 `touchscreen-compatible = "edt,edt-ft5406";` 修改为 `touchscreen-compatible = "goodix,gt917d";` 然后重新编译并刷入修改后的 lk2nd。
+
+如果你希望使用我已经编译好的系统（仅适用于搭载 focaltech 触摸屏的设备），可以在 [Releases](https://github.com/calico-cat-3333/debian-on-mido/releases) 里下载文件并直接跳到[刷入](https://github.com/calico-cat-3333/debian-on-mido/tree/main#%E5%88%B7%E5%85%A5)一节。
 
 ## 编译内核
 
@@ -369,11 +371,22 @@ adduser user
 usermod -aG sudo user
 usermod -aG audio user
 usermod -aG video user
+usermod -aG render user
 usermod -aG input user
 usermod -aG netdev user
 usermod -aG plugdev user
 usermod -aG bluetooth user
 ```
+
+### 启用 zram
+
+zram 允许将内存的一部分压缩作为 swap 使用。
+
+```
+sudo apt install zram-tools
+```
+
+编辑 /etc/default/zramswap 修改 `ALGO=lz4` 为 `ALGO=zstd`
 
 ### 安装桌面环境
 
