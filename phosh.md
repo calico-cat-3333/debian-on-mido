@@ -87,12 +87,28 @@ local fcitx = require("fcitx")
 fcitx.watchEvent(fcitx.EventType.InputMethodActivated, "call")
 fcitx.watchEvent(fcitx.EventType.InputMethodDeactivated, "decall")
 
+function kbenable()
+    local handle = io.popen("gsettings get org.gnome.desktop.a11y.applications screen-keyboard-enabled 2>&1")
+    local result = handle:read("*a")
+    handle:close()
+    result = result:gsub("^%s+", ""):gsub("%s+$", "")
+    if result == "true" then
+        return true
+    elseif result == "false" then
+        return false
+    end
+end
+
 function call()
-	os.execute("busctl call --user sm.puri.OSK0 /sm/puri/OSK0 sm.puri.OSK0 SetVisible b true")
+    if kbenable() then
+        os.execute("busctl call --user sm.puri.OSK0 /sm/puri/OSK0 sm.puri.OSK0 SetVisible b true")
+    end
 end
 
 function decall()
-	os.execute("busctl call --user sm.puri.OSK0 /sm/puri/OSK0 sm.puri.OSK0 SetVisible b false")
+    if kbenable() then
+        os.execute("busctl call --user sm.puri.OSK0 /sm/puri/OSK0 sm.puri.OSK0 SetVisible b false")
+    end
 end
 ```
 
