@@ -28,12 +28,12 @@ git clone https://github.com/calico-cat-3333/debian-on-mido.git
 克隆内核源码
 
 ```
-git clone https://github.com/msm8953-mainline/linux.git --depth=1 -b 6.15/main
+git clone https://github.com/msm8953-mainline/linux.git --depth=1 -b 6.16.3/main
 ```
 
-此处使用的 6.15/main 分支是本文撰写时最新的分支，如果需要请调整为其他分支。
+此处使用的 6.16.3/main 分支是本文撰写时最新的分支，如果需要请调整为其他分支。
 
-编译内核，我的配置文件修改自 [https://gitlab.com/postmarketOS/pmaports/-/blob/master/device/community/linux-postmarketos-qcom-msm8953/config-postmarketos-qcom-msm8953.aarch64](https://gitlab.com/postmarketOS/pmaports/-/blob/master/device/community/linux-postmarketos-qcom-msm8953/config-postmarketos-qcom-msm8953.aarch64) 主要就是改了一下本地名称，禁用了模块压缩（这个比较重要，开启之后开不了机），开启了 g_serial
+编译内核，我的配置文件修改自 [https://gitlab.postmarketos.org/postmarketOS/pmaports/-/blob/master/device/community/linux-postmarketos-qcom-msm8953/config-postmarketos-qcom-msm8953.aarch64?ref_type=heads](https://gitlab.postmarketos.org/postmarketOS/pmaports/-/blob/master/device/community/linux-postmarketos-qcom-msm8953/config-postmarketos-qcom-msm8953.aarch64?ref_type=heads) 主要就是改了一下本地名称，禁用了模块压缩（这个比较重要，开启之后开不了机），开启了 g_serial, 启用 zram 的 lz4 和 lzo 算法支持
 
 修改后的文件位于 config 中。
 
