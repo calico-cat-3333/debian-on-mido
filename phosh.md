@@ -32,7 +32,7 @@ sudo apt install firefox-esr firefox-esr-l10n-zh-cn gnome-tweaks dconf-editor al
 
 修正默认浏览器（Epiphany）白屏
 
-编辑：/usr/share/applications/org.gnome.Epiphany.desktop 将 Exec 行前的命令上加上 `env LIBGL_ALWAYS_SOFTWARE=1`
+编辑：/usr/share/applications/org.gnome.Epiphany.desktop 将 Exec 行前的命令上加上 `env LIBGL_ALWAYS_SOFTWARE=1` 不过这么做会让浏览器变得很卡。
 
 Epiphany 设置移动端 UA
 
