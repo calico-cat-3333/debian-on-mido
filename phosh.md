@@ -23,7 +23,7 @@ sudo apt install phosh phosh-full phosh-phone
 安装其他附加软件：
 
 ```
-sudo apt install firefox-esr gnome-tweaks dconf-editor alsa-utils gnome-text-editor dconf-cli loupe nautilus
+sudo apt install firefox-esr firefox-esr-l10n-zh-cn gnome-tweaks dconf-editor alsa-utils gnome-text-editor dconf-cli loupe nautilus
 ```
 
 ## 进入桌面后的配置
@@ -46,7 +46,11 @@ gsettings set org.gnome.Epiphany.web:/org/gnome/epiphany/web/ user-agent 'Mozill
 
 ### 修正默认音量过小的问题
 
-在 alsamixer 中提高 RX3 Digital（先按 F6 进入 xiaomi-mido 声卡，然后往后翻，在很靠后的位置） 注意不要过高，不然底噪就会很严重，我暂时调到 46 左右觉得比较好。（RX1 Digital 是耳机左声道，RX2 Digital 是耳机右声道，这两个也可以调整一下到 28 左右）
+在 alsamixer 中提高 RX3 Digital（先按 F6 进入 xiaomi-mido 声卡，然后按 F4 只显示 Capture，然后往后翻，在很靠后的位置） 注意不要过高，不然底噪就会很严重，我暂时调到 46 左右觉得比较好。（RX1 Digital 是耳机左声道，RX2 Digital 是耳机右声道，这两个也可以调整一下到 28 ~ 34 左右）
+
+### 关闭插入电源时自动挂起
+
+由于插入电源时自动挂起后充电不正常，所以需要在设置-电源-节电中关闭插入电源时的自动挂起。
 
 ### 安装中文输入法
 
