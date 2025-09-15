@@ -38,12 +38,17 @@ function mount_rootfs {
 		echo -e "\\e[31mError: rootfs.img not exist, run make_rootfs_img first.\\e[0m"
 		return 1
 	fi
+	if [ ! -f bootfs.img ]; then
+		echo -e "\\e[31mError: bootfs.img not exist, run make_bootfs_img first.\\e[0m"
+		return 1
+	fi
 	mkdir -p ./$rootfs_mp
 	mount rootfs.img ./$rootfs_mp
 	mount --bind /proc ./$rootfs_mp/proc
 	mount --bind /dev ./$rootfs_mp/dev
 	mount --bind /dev/pts ./$rootfs_mp/dev/pts
 	mount --bind /sys ./$rootfs_mp/sys
+	mount bootfs.img ./$rootfs_mp/boot
 }
 
 function umount_rootfs {
@@ -55,11 +60,12 @@ function umount_rootfs {
 	umount ./$rootfs_mp/dev/pts
 	umount ./$rootfs_mp/dev
 	umount ./$rootfs_mp/sys
+	umount ./$rootfs_mp/boot
 	umount ./$rootfs_mp
 	rmdir ./$rootfs_mp
 }
 
-function make_boot_img {
+function make_boot_img_old {
 	mkdir -p ./tmpboot
 	if [ ! -f ./$rootfs_mp/boot/initrd.img* ]; then
 		echo -e "\\e[31mError: No initrd.img, should mount_rootfs and create initrd.img first.\\e[0m"
@@ -82,4 +88,26 @@ function make_boot_img {
 			--cmdline "console=tty0 root=UUID=$rootfs_uuid rw loglevel=3 splash"\
 			--kernel ./tmpboot/kernel-dtb -o ./tmpboot/boot.img
 	cp ./tmpboot/boot.img ./boot.img
+}
+
+function make_bootfs_img {
+	if [ $UID -ne 0 ]; then
+		echo -e "\\e[31mError: should run as root.\\e[0m"
+		return 1
+	fi
+	if [ -f bootfs.img ]; then
+		read -r -p "bootfs.img exists, overwrite it?[y/N]" overwrite_rootfs
+		case $overwrite_rootfs in
+			[yY])
+				echo "overwrite bootfs.img";;
+			*)
+				return 1;;
+		esac
+		if findmnt -n -o TARGET --source "$(losetup -j bootfs.img | cut -d: -f1)" >/dev/null 2>&1; then
+			echo -e "\\e[31mError: bootfs.img is currently mounted. Please unmount it first.\\e[0m"
+			return 1
+		fi
+	fi
+	dd if=/dev/zero of=bootfs.img bs=1G count=1
+	mkfs.ext2 bootfs.img
 }
