@@ -383,12 +383,10 @@ fastboot erase system
 fastboot erase userdata
 ```
 
-我们还需要 lk2nd, 这个不需要自己编译，用 postmarketos 提供的就可以。
-
 刷入 lk2nd
 
 ```
-fastboot flash boot lk2nd-msm8953.img
+fastboot flash boot lk2nd.img
 ```
 
 然后执行 `fastboot reboot` 重启，将进入 lk2nd 的 fastboot 界面（如果不是是从全新的 lk2nd 开始，需要注意在手机振动一下但是屏幕还没有显示 mi 图标的时候按住音量减键，然后也可以进入 lk2nd fastboot 界面），在此界面下，执行
