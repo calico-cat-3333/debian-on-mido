@@ -462,9 +462,7 @@ sudo apt install zram-tools
 
 SIM 卡相关功能未测试
 
-默认加载 g_serial 貌似会导致 OTG 不可用，故如需使用 OTG 请从 /etc/modules 中注释 g_serial
-
-OTG 不稳定
+默认加载 g_serial 会导致 OTG 不可用，故如需使用 OTG 请从 /etc/modules 中注释 g_serial 或在开机前插入 OTG 设备。
 
 蓝牙能搜索，不知道能不能用。
 
