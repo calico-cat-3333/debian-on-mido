@@ -458,6 +458,71 @@ sudo apt install zram-tools
 
 [BuffyBoard](buffyboard.md) 严格上说不算桌面环境，只是在默认 TTY 上加了个虚拟键盘。
 
+### （可选）启用快充
+
+默认充电速度在 dtb 中限制为 1A, 速度较慢，可以通过修改 dts 提高充电速度。
+
+由于 lk2nd 的 extlinux 支持 device tree overlay 所以这里使用 dtbo 来覆盖设备树节点，无需修改原 dts.
+
+安装 dtc 工具：
+
+```
+sudo apt install device-tree-compiler
+```
+
+创建 fastcharge.dts （这里提升到了 1.6A）
+
+```
+/dts-v1/;
+/plugin/;
+
+/ {
+    fragment@0 {
+        target-path = "/battery";
+        __overlay__ {
+            constant-charge-current-max-microamp = <1600000>;
+        };
+    };
+};
+```
+
+编译为 dtbo
+
+```
+dtc -I dts -O dtb -o fastcharge.dtbo fastcharge.dts
+```
+
+复制到 /boot/dtbo
+
+```
+sudo su
+mkdir -p /boot/dtbo
+cp fastcharge.dtbo /boot/dtbo
+```
+
+编辑 /boot/extlinux/extlinux.conf 在最后添加：
+
+```
+	fdtoverlays /dtbo/fastcharge.dtbo
+```
+
+编辑完成后，extlinux.conf 应该如下所示：
+
+```
+timeout 1
+default Debian
+menu title boot prev kernel
+
+label Debian
+	kernel /vmlinuz-6.16.3-calicocat-msm8953+
+	fdtdir /
+	initrd /initrd.img-6.16.3-calicocat-msm8953+
+	append console=tty0 root=UUID=350b96c5-23d6-419f-a377-d2e446190c14 rw loglevel=3 splash
+	fdtoverlays /dtbo/fastcharge.dtbo
+```
+
+然后重启，使用 cat /sys/class/power_supply/qcom-smbchg-usb/constant_charge_current_max 应该可以看到输出变为 1600000, 使用 USB 电流表应该也可以看到电流变大。
+
 ## 未测试/已知问题
 
 SIM 卡相关功能未测试
@@ -475,8 +540,6 @@ SIM 卡相关功能未测试
 ~~有时会不显示电池。遇到这种情况时必须完全关机再开机，重启貌似无效果。充放电有时也不稳定。~~
 
 挂起后无法充电（确切的说，挂起前如果正在充电，从挂起恢复后 upower 服务会出现异常，导致 xfce power manager 卡死，此时电池状态不更新，也不知道是不是在充电，关机/重启时会卡在结束 upower 进程上）（仅在连接充电器后再挂起才会出现这种情况，不充电时挂起不会，恢复也不影响充电）（有待进一步测试）
-
-充电不是很快。（确认为保守的默认充电电流配置导致的，可以通过调整设备树解决）
 
 红外发射未测试。
 
