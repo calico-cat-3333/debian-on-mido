@@ -458,6 +458,8 @@ sudo apt install zram-tools
 
 [BuffyBoard](buffyboard.md) 严格上说不算桌面环境，只是在默认 TTY 上加了个虚拟键盘。
 
+[终端看板（Console Panel）](console-panel.md) 也不是桌面环境，是在 TTY1 上用纯 bash 画的常驻系统监控面板，不装桌面也能用。
+
 ### （可选）启用快充
 
 默认充电速度在 dtb 中限制为 1A, 速度较慢，可以通过修改 dts 提高充电速度。
